@@ -1,0 +1,22 @@
+GROUND
+-20 -10 20 -10
+blue
+1
+
+TARGET
+CUSTOM
+-3 -9.9 -3 -5.9 0 -4 0 -9.9 z z
+green
+0.1
+1
+
+OBSTACLE
+LINE
+-19 -9.9 0.5 -3
+blue
+0.7
+0.1
+
+ZONE
+-15 0 15 24
+

@@ -1,0 +1,28 @@
+GROUND
+-15 -10 15 -10
+blue
+0.4
+
+TARGET
+BOX
+0 -7.9 4 4
+green
+1
+1
+
+OBSTACLE
+LINE
+11 -9.5 0.1 13
+blue
+0.7
+1
+
+OBSTACLE
+LINE
+-11 -9.5 -0.1 13
+blue
+0.7
+1
+
+ZONE
+-18 15 18 24

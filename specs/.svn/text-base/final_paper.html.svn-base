@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <link rel="stylesheet" href="azul.css" type="text/css" />
+</head>
+<body>
+<h1 id="dropzone">DropZone</h1>
+<h2 id="by-caleb-an-ajay-kannan-ryan-oconnor-and-pibo-shongwe">By Caleb An, Ajay Kannan, Ryan O’Connor, and Pibo Shongwe</h2>
+<p>DropZone is a paradigm shift in the genre of PDS (polygon dropping strategy) gaming. You play as an alien Zorblaxian invader crushing the last remnants of the human resistance. To this end, you receive an experimental new plasma weapon that creates objects of variable shape, mass and color. You use this weapon to drop shapes on the pitiful humans, who now reside in green boxes and cower beneath elaborate defenses. For each settlement, you have enough plasma for 3 objects before your reserve is depleted. You are obligated to draw within a certain drawing zone due to the fickle technology used in the weapon. You can be joined by up to 7 other players over an internet connection; however, you share the ammo for the plasma weapon, so players should strategize with each other across the chat box provided.</p>
+<div class="figure">
+<img src="client_server.PNG" title="Client-Server Relationship" alt="The game is run from the server, and up to 8 clients can play!" /><p class="caption">The game is run from the server, and up to 8 clients can play!</p>
+</div>
+<h1 id="origins-of-design">Origins of Design</h1>
+<p>We began with the basic task handed to us in class: make a droppable object. Games usually have some goal, so we then evolved the concept of a droppable object to include a goal, a target to hit. Games should also be fun and challenging, and a clear way to do this was to create obstacles of some sort that the player must circumvent. To circumvent the cheat where a player could draw a shape on top of the target and for an added layer of difficulty, we came up with the idea of “drawing zones”, which are zones denoting the only place players can draw. The design had a lot of creative flexibility, and (most importantly) seemed fun. Later on, we added modular masses for the objects to allow for crazier fun.</p>
+<div class="figure">
+<img src="level8_pic.jpg" title="Level 8" alt="Game in mid-play in a level with reduced friction" /><p class="caption">Game in mid-play in a level with reduced friction</p>
+</div>
+<h1 id="most-impressive-aspects-of-dropzone">Most Impressive Aspects of DropZone</h1>
+<h2 id="level-loading-system">Level Loading System</h2>
+<p>We are proud of the level loading system. The system started out as a means for testing. This allowed us to test multiple level designs without needing to hard-code elements into our files. It has grown into a system that allows the user to create their own levels. Files allow for a great amount of flexibility by letting the user create targets and obstacles of any shape, size, or color. The power of the file system was shown in our game: creative levels could be made by adding just a few lines, abstracting many details away from the creator of the file.</p>
+<h2 id="level-creativity">Level Creativity</h2>
+<p>We are also proud of the freedom given to the player. Many of our ten levels can be beaten in multiple ways. The creativity allowed makes for a more exciting game than games with linear win objectives. This was apparent when we had people from outside our group play the game (especially on demo day). Levels were beaten in ways that we had never envisioned. We experienced the same phenomenon when we sought out people outside of the class to playtest our game and give feedback during the design process.</p>
+<p>Some example levels in mid-play:</p>
+<div class="figure">
+<img src="level6_pic.jpg" title="Level 6" alt="An...interesting...way to play level 6." /><p class="caption">An...interesting...way to play level 6.</p>
+</div>
+<div class="figure">
+<img src="level7_pic.jpg" title="Level 7" alt="A masterful play at level 7" /><p class="caption">A masterful play at level 7</p>
+</div>
+<h2 id="stability">Stability</h2>
+<p>The stability of the game when played over networking has improved drastically. When networking was first implemented the game crashed consistently even after playing for only a few seconds. We also had poor memory management, losing megabytes of memory. We have since cleaned up our program to the point that we can consistently play the entire game multiple times with players on different computers without crashing. We have also addressed the memory issue, and our current release does not cause noticeable slowdown on our machines.</p>
+<h1 id="weaknesses">Weaknesses</h1>
+<p>However, our game is not without its flaws. The three prominent ones are as follows:</p>
+<h2 id="the-visuals-are-spartan-sparse.">The visuals are spartan sparse.</h2>
+<p>The graphics of the game are rather simple; we only use polygons of various colors and a plain white background. Adding .png based objects and a background was given a low priority in the initial schedule. In the debugging havoc of the last week, we did not get around to adding better graphics. Perhaps an equally unfortunate consequence is that we forgot about adding Professor Balkcom’s favorite blue (&quot;Balkcom Blue&quot;) (30, 40, 140) to our color panel.</p>
+<h2 id="the-game-stutters-over-wi-fi">The game stutters over Wi-Fi</h2>
+<p>Without a strong (preferably Ethernet) internet connection, the game does not display smoothly - it stutters and pauses. When the connection is bad, it is possible that one player will not be graphically informed if a level is beaten, while other players with better internet connection will move on to the next level. The player left behind might see both new objects and objects that are supposed to be cleared from the screen.</p>
+<h2 id="the-menu-bar-is-in-a-non-intuitive-place.">The menu bar is in a non-intuitive place.</h2>
+<p>The menu bar for the options is located at the very top of the screen instead of on the game window. We coded the menu bar, realized later during testing that it was not in the best place, but we were reluctant to throw away working code when we had other more pressing bugs to fix. Regardless of the reasons the menu bar is still located in an awkward position.</p>
+<h1 id="subsystem-organization">Subsystem Organization</h1>
+<p>physics.c, server.c, and client.c are the three biggest subsystems of our game.</p>
+<p>physics.c runs the backend calculations, using the Chipmunk Physics library to step the world, check for winning collisions, and add the line segments the player draws to the space. physics.c reads new levels upon receiving requests to change levels from server.c.</p>
+<p>server.c interfaces between physics.c and clients, providing clients with the up-to-date positions of the objects and providing physics.c with the new shapes the clients want to add to the cpSpace. server.c also acts as the middleman in inter-client communication, ensuring that one client’s actions, such as drawing new objects, sending chat messages, or changing levels, is communicated to the other clients.</p>
+<p>client.c contains the GUI, makes calls to graphics.c to display the world, and takes in user input. It provides file menus to choose colors, masses, and levels, and sends the clients’ choices back to server to be processed.</p>
+<p>Other smaller subsystems include protocols.c, which supplies the language of interaction between server and client, and networking.c, containing factored functions to send and receive messages between client and server.</p>
+<div class="figure">
+<img src="subsystems.PNG" title="Subsystem Diagram" alt="A diagram of the connections between subsystems" /><p class="caption">A diagram of the connections between subsystems</p>
+</div>
+<h1 id="bugs">Bugs</h1>
+<h2 id="stuttering-over-wi-fi">Stuttering over wi-fi</h2>
+<p>We discovered late in the game that the reason the client wasn’t receiving all the messages the server was sending out was that client was being overwhelmed with messages. To ameliorate this problem, we added sleeps after important messages, such as level switches and adding new bodies. However, we based our estimates off of ethernet cable speeds, so over slower wifi connections, our game can sometimes stutter.</p>
+<p>To fix this problem, we could have the clients send back messages upon receipt of a new body or a level switch. The server will check that each client has received the shapes and level switches before sending more messages. If the “received” message from each client is not seen by the server, then the server will send out the information to lagging clients again.</p>
+<h2 id="internal-chipmunk-error-v.x-v.x-v.y-v.y-condition-failed">Internal Chipmunk error: v.x == v.x &amp;&amp; v.y == v.y condition failed</h2>
+<p>This bug came up approximately once every ten to fifteen runs in our testing. It occurred more often when we set the mass to 20 kg, which may have caused some problems since everything else in the space is far less massive. The issue most likely stems from a division by zero somewhere in the code. A preliminary fix would be to take out the 20 kg mass, check the body’s position in server.c before sending it to client.c, and then check for NaN positions during updates. Using chipmunk’s “sanity check” function would be also be a possibility, but preferably the problem would be identified beforehand. Ideally, we would cut the problem off at the source by error-checking the user input more carefully. Right now, any shape that a user draws (as long as it is big enough and is inside the drawing box) is accepted. In the future, this could be changed to get rid of this bug.</p>
+<h1 id="physics-physics.c">Physics (physics.c)</h1>
+<h2 id="overview">Overview</h2>
+<p>physics.c runs the physics backend, performing the functions and calculations required for describing the game world and the interactions between the objects. It also handles the backend operations for altering the world, which are called when a client adds a new object or when a call to load a new level is received.</p>
+<h2 id="data-structures">Data structures</h2>
+<p>The central data structure of physics is the world_status struct, which contains all the necessary information for a DropZone game state. The fields are as follows:</p>
+<p>cpSpace *space: this is the pointer to the Chipmunk cpSpace struct containing all the Chipmunk bodies, which are used for the physics simulation and object collision.</p>
+<p>int status: the integer representing the status of the game. Equal to 2 if the game is ongoing, and equal to 1 if there is a collision with the target object.</p>
+<p>bool drawing_box: true when there is a drawing box read from the level file, false when there is none read from the level.</p>
+<p>float drawing_box_x1, drawing_box_y1, drawing_box_x2, drawing_box_y2: these are the coordinates for the drawing box, with (x1, y1) being the bottom left corner and (x2, y2) as the top right corner.</p>
+<p>float timestep: the size of the timestep for the physics calculations.</p>
+<p>int body_count: number of user created bodies.</p>
+<h2 id="inputs-and-outputs-of-the-system">Inputs and Outputs of the System</h2>
+<p>Physics functions are called by server.c to load and create new levels, to add new bodies that clients create, and to timestep the world to simulate physics. The server provides all the inputs needed, usually including a pointer to a world_status struct and the details summarizing what must be changed (i.e. line segment positions for new user-created objects, the requested level for level switching, etc).</p>
+<h2 id="public-functions">Public Functions</h2>
+<p>The most heavily used public functions are world_new(), create_user_object(), world_update() and world_free().</p>
+<p>world_status *world_new(int level, float timestep); This is used to allocate memory and initialize a world_status struct. It reads from the level file indicated by the parameter int level, and will assign a timestep of parameter float timestep for the physics calculations. It returns a pointer to the created struct.</p>
+<p>int create_user_object (cpVect *vectors, int vector_size, COLOR color, world_status *world, cpCollisionType collision, cpFloat mu, cpFloat mass); This is used to add new objects to the world. The cpVect pointer parameter is an array of Chipmunk vectors that are the vertices of the shape. The parameter world_status *world is the world to which the object is being added. The cpCollisionType collision is used to place the user created object in the the correct Chipmunk collision layer (to denote whether or not it should trigger a win condition upon contact with the target). This function returns the body_id of the object.</p>
+<p>void *world_update(world_status *world); This is used called to do a physics timestep on the cpSpace inside the passed world struct. It will update the angles and positions of all cpBodies within the cpSpace.</p>
+<p>bool world_free (world_status *world); This is used to free the passed world and its components. It utilizes many static functions. It will return true upon success or false upon an error.</p>
+<h2 id="design-and-private-functions">Design and Private Functions</h2>
+<p>Many parts of the public functions are factored into private functions. world_new() is aided by the following functions, mainly ones for file reading:</p>
+<pre><code>static void world_custom_read (FILE *ifile, world_status *world, cpCollisionType collision);
+static void world_box_read (FILE *ifile, world_status *world, cpCollisionType collision);
+static void world_line_read (FILE *ifile, world_status *world, cpCollisionType collision);
+static void world_level_read (FILE *ifile, world_status *world);
+static void world_ground_read (FILE *ifile, world_status *world);
+static cpBool target_collision (cpArbiter *arbiter, cpSpace *space, void *data);</code></pre>
+<p>Freeing is done with the following functions:</p>
+<pre><code>static void world_shape_post(cpSpace *space, cpShape *shape, void *unused);
+static void world_shape_free(cpShape *shape, cpSpace *space);
+static void world_constrain_post(cpSpace *space, cpConstraint *constraint, void *unused);
+static void world_constrain_free(cpConstraint *constraint, cpSpace *space);
+static void world_body_post(cpSpace *space, cpBody *body, void *unused);
+static void world_body_free(cpBody *body, cpSpace *space);</code></pre>
+<h2 id="testing.">Testing.</h2>
+<p>Physics was extensively tested in the first week of programming for accuracy, bounds checking and memory leaks. In addition the level loading system was tested to ensure that it worked.</p>
+<h1 id="server-server.c">Server (server.c)</h1>
+<h2 id="overview-1">Overview</h2>
+<p>server.c is the hub of information for the duration of the running program. The server interfaces with physics.c and client.c to control flow of the game.</p>
+<p>In main(), a loop with two statements is called, one to listen for messages from the clients, called server_select(), and the other to step the world, called server_world_step(). Threads are not used in server.c since these two tasks deal almost exclusively with the same data structures. Thus, adding locks would probably not increase performance without a serious cost to clarity and simplicity of design.</p>
+<p>Inside server_select(), select() is called to determine which (if any) clients have information for the server to process. This new information can be chat messages, new bodies that the user has drawn, and requests to change the current level. server_select() determines how to process the information, and calls the appropriate function to do so.</p>
+<p>server_world_step() is called to step the cpSpace and broadcast information about the updated positions and angles of the shapes.</p>
+<p>The loop ends when the server detects that all the players have exited. The server then frees memory and exits.</p>
+<h2 id="data-structures-1">Data structures</h2>
+<p>The broadcast_info struct contains all the information needed to decide what and how to send information to each client. The fields it contains are detailed below.</p>
+<p>bool skip_sender_fd and int sender_fd store whether or not the message received from a client should be sent back to that client. skip_sender_fd is set to true only for chat messages to prevent messages that a client types from appearing on his/her own screen.</p>
+<p>char *message stores the message to be sent out to the client. int nbytes is the length of the message.</p>
+<p>int new_player_listener is stored to make sure that messages aren't sent over the socket dedicated to listening for and accepting new players. int fdmax is the highest file descriptor, used in select and to look for connected clients to whom messages should be sent. master_readfds is the master copy of all the file descriptors connected to the server.</p>
+<p>bool game_started keeps track of whether a player has joined the game. int num_players keeps track of the number players, which is used to end the game. The server closes when game_started = true and num_players = 0.</p>
+<p>int try_number is the cumulative number of tries used up by all the players so far in a specific level. After three tries, the level is reset, and the players have to start over. int level keeps track of the level currently being playing so that the server can call physics.c to load the appropriate level when necessary.</p>
+<p>world_status *world is a pointer to the physics struct world_status. The world status contains the information necessary to check for whether the game has been won and the state of the world. This information is necessary to control the flow of the game and to store the “master copy” of the cpSpace simulation.</p>
+<h2 id="inputs-and-outputs-of-system">Inputs and Outputs of System</h2>
+<p>server.c takes inputs from the clients and physics.c. It uses physics.c to simulate the space, and takes new shapes and level change requests from the clients. All of its inputs from the clients are character strings, translated by protocols.c.</p>
+<p>server.c broadcasts character strings to the clients. When new shapes are added, server.c sends all the line segments to each client. When a level change request is received from a client, it is broadcasted to all the other clients from server.c. server.c also periodically sends strings of x,y, and angle information for each body to update the positions of all the existing bodies in each client’s array of body information.</p>
+<h2 id="public-functions-1">Public Functions</h2>
+<p>Main is the only non-static function. Public functions were not necessary since no other file uses server.c functions.</p>
+<h2 id="design-and-private-functions-1">Design and Private Functions</h2>
+<p>The private functions are as follows:</p>
+<pre><code>static broadcast_info *new_broadcast_info(fd_set *master_readfds, int new_player_listener, int fdmax);
+static void server_select(struct timeval *tv, broadcast_info *info);
+static void server_broadcast_message(broadcast_info *info);
+static void server_world_step(broadcast_info *info);
+static void server_add_body(broadcast_info *info);
+static void server_send_initial_bodies(cpBody *body, broadcast_info *info);
+static void free_message(broadcast_info *info);
+static void server_send_world_info(broadcast_info *info);
+static void server_switch_level(broadcast_info *info, int level, bool win);</code></pre>
+<p>new_broadcast_info() is called once at the start of the game in main() to store all the information necessary to keep track of clients and messages to send.</p>
+<p>server_select() reads input from the clients, using calls to functions in protocols.c. server_select() calls a majority of the other functions in server.c to process the information from the client.</p>
+<p>When server_select() receives the command from a client to switch levels or the players have won/lost, server_switch_level() is called. server_switch_level() wraps the server function server_send_world_info() for switching levels. The reason these two functions are not merged is because server_switch_level() resets broadcast_info variables and does memory freeing before calling server_send_world_info to repopulate the clients’ “dummy” cpSpaces. server_send_initial_bodies() is called repeatedly to iterate through the existing bodies in the level whenever a new level is loaded. server_switch_level() is also called in main() once at the beginning of the program.</p>
+<p>server_select() calls server_add_body() to add new bodies that clients have drawn.</p>
+<p>server_broadcast_message() is called whenever a message has to be sent out to clients. It is called from server_select() to send out chat messages, server_world_step() to send out updated positions for existing bodies, server_add_body() to broadcast information, and server_send_initial_bodies() to send out each initial body in the level.</p>
+<p>free_message() is a product of factoring. It is used whenever protocols is used to translate messages, since protocols mallocs space for character buffers.</p>
+<h2 id="testing">Testing</h2>
+<p>server.c was tested with series of gdb and Valgrind runs. Valgrind returned 0 memory errors. When stepping through parts of different runs with gdb, the program behaved as expected.</p>
+<h1 id="client-client.c">Client (client.c)</h1>
+<h2 id="overview-2">Overview</h2>
+<p>Client.c brings together all the elements needed to allow the user to play and view the game on their own computer. It has a GUI to allow for user input (implemented in client.c itself) and calls upon graphics.c to display game information to the user. It communicates with the server to properly update the state of the game using networking.c and protocols.c.</p>
+<p>Client.c relies on the use of threading. One thread is dedicated to receiving input from the user. It listens for mouse and Gtk menu events when the user draws a shape or clicks on the menu. If the user draws a shape, it will decide if it is a proper shape and then, if approved, the shape will be sent to the server. If the player selects a new level in the menu, the server will also be notified. If user makes use of the color or mass menu, the selection will be stored in client.c. If the user enters text into the text box, this thread will send it to the server.</p>
+<p>The other thread listens to server.c and updates the state of the game world that it is storing. This thread receives a message from server.c, interprets it according to protocols.c, updates the shapes and positions, then displays the results to the screen using graphics.c.</p>
+<h2 id="data-structures-2">Data Structures</h2>
+<p>gui_world: The gui_world data structure stores all information needed by callbacks in client.c.</p>
+<p>graphics_world *graphics: contains the information needed by graphics.c to display the game</p>
+<p>cpSpace *space: contains information about the state of the game, i.e. attributes about the shapes that make up the current status of the level</p>
+<p>press_x, press_y, release_x, release_y are deprecated, from the stage of development in which players could only draw boxes.</p>
+<p>int try_number: the current try that the user is on. This is set to 0 upon the start of every level and it is limited to three before a loss</p>
+<p>float mass: the current mass of the shape of the user-drawn object. It is set by the user in the mass menu.</p>
+<p>int level: the current level that the user is playing</p>
+<p>int socket: the file descriptor of the socket that is connected to server.c</p>
+<p>float *angles: an array of floating point values used to store the latest set of angles sent by server.c</p>
+<p>cpVect *positions: an array of chipmunk vectors used to store the latest set of body positions sent by server.c</p>
+<p>int num_bodies: an integer representing the current number of bodies displayed on the screen</p>
+<p>bool terminate_thread: a boolean that tells the thread listening to the server socket whether it should continue to operate. This changes to false immediately before the end of the game</p>
+<p>pthread_mutex_t *space_lock: a lock to make sure that the bodies and shapes of client.c’s chipmunk space are not being modified and read at the same time. pthread_mutex_t <em>socket_lock, pthread_mutex_t</em>initial_lock, and pthread_mutex_t *text_lock are deprecated and have not yet been taken out.</p>
+<p>polygon_struct *polygon: contains all the information necessary to translate a shape from a character array string from protocols.c into an actual shape. Used to extract shapes from new bodies received from server.c</p>
+<p>bool draw_success: a variable used to make sure that the user draws in the box. When drawing, if the user’s mouse reaches a point outside the box, this is set to false. Upon completion of the shape, if draw_success is false, the shape will be thrown out and the user is prompted to draw again.</p>
+<p>GtkTextBuffer *textbox_buffer: this buffer is connected to the textbox. It updates every time a key is pressed and its contents will be sent to server.c when the user pressed the send button.</p>
+<p>GtkWidget *label: used to display chat messages from other users</p>
+<h2 id="inputs-and-outputs-of-system-1">Inputs and Outputs of System</h2>
+<p>This system receives input from the user via the GUI. The mouse clicks and menu selections of the user are used by client.c to perform game-specific operations. Output of the state of the game are output displayed to the user via graphics.c.</p>
+<p>The system also receives both input and output from server.c for modeling the game world and controlling the flow of the game.</p>
+<h2 id="functions">Functions</h2>
+<pre><code>static gboolean new_game (gui_world)</code></pre>
+<p>This function starts from the beginning of a level. It needs gui_world so that it can properly update the state of the game world. This is called whenever the user wins or loses at a certain level or decides to start a level using the menu.</p>
+<pre><code>static void pre_quit (GtkWindow *window, gpointer data)</code></pre>
+<p>This is used as a callback when the “destroy” action is called in Gtk. This terminates the other thread before the end of Gtk so that this program can close without errors.</p>
+<pre><code>static void add_user_point (float x, float y, gui_world *world)</code></pre>
+<p>This function is called whenever the user is drawing a new shape. When the user is clicking and dragging the mouse to draw a shape, this function is called for every new point that the mouse touches. This function adds that point to an array and determines whether the point is within the designated drawing zone. If not it will set a flag that will cause a failure of the drawing upon the release of the mouse.</p>
+<pre><code>static void update_body_post (cpSpace *space, cpBody *body, gui_world *world)
+static void update_body (cpBody *body, gui_world *world)
+static void update_space (gui_world *world, float *angles, cpVect *positions)</code></pre>
+<p>These functions are used together to update the positions and angles of the body every time the client receives updates coordinates from the server. They iterate through all the bodies, and if there is a proper angle in the array of new angles, it will update the angle and position of the shape. A separate post function is used because chipmunk was having issues with updating shape positions without it. The update_body function is needed because it is an iterative function.</p>
+<pre><code>static void add_body (gui_world *world, char *message)</code></pre>
+<p>This function is used to add a new body to client.c’s cpSpace. It uses the information in message (which is from server.c) to update the state of the world (found in world).</p>
+<pre><code>static gboolean cb_mass_change (GtkWidget *widget, gpointer data)</code></pre>
+<p>This callback function is called whenever the mass menu is used. It updates the mass of the shape that the user draws by using the name of the widget (which is set to 0.5, 1, 5, 10, or 20)</p>
+<pre><code>static gboolean cb_change_level (GtkWidget *widget, gpointer data)</code></pre>
+<p>This callback is used whenever the level menu is used. It makes use of the fact that every menu item in the level is named according to which level it represents. It sends a message to the server to update the level so this function doesn’t actually create a new level in client.c itself.</p>
+<pre><code>static gboolean chatbox_button_pressed (GtkWidget *widget, gpointer data)</code></pre>
+<p>This is the callback whenever the chatbox button is pressed. This will send the message (possibly truncated due to excessive length) to the server.</p>
+<pre><code>static gboolean cb_button_press (GtkWidget *widget, GdkEventButton *event, gpointer data)
+static gboolean cb_button_release (GtkWidget *widget, GdkEventMotion *event, gpointer data)
+static gboolean motion_notify_event_cb (GtkWidget *widget, GdkEventMotion *event, gpointer data)</code></pre>
+<p>These functions are used together to deal with the user mouse clicks. cb_button_press is used when the user first clicks the mouse down. motion_notify_event_cb is used when the user is holding the mouse down and dragging to draw the shape. cb_button_release is called when the user releases the mouse. The first two functions collect information on the shape that the user is drawing (the coordinates and whether it is in the drawing zone) while the cb_button_release function deals with sending some of those points to the server. Note: Only a small portion of the points are sent to the server because we found that chipmunk had issues with dealing with a body that had hundreds of line segments</p>
+<pre><code>static void *listener_thread(void *data)</code></pre>
+<p>This function is what the other thread does while the main thread is dealing with user input via the GUI. It first checks the socket via client_select. It then uses any proper output from that function to update the state of the game world, whether it is a new body, new level, updated coordinates, or chat message. It then draws everything, whether there are new conditions or not. It then repeats this process until the program is terminated.</p>
+<pre><code>static string_info *client_select(int socket)</code></pre>
+<p>This function is called to check the contents of the socket. It makes use of the recvall function found in networking to get any message, which it returns.</p>
+<p>main(): the main function sets up everything needed to play the game. First it sets up the network connection with the server. Next it initializes the gui_world, graphics_world and physics_world data structures so that game information can be properly stored. Next all the GUI elements are set up. This includes setting up the window, drawing area, all the menu, and connecting those elements with user-actions (e.g. mouse-clicks). This function then initializes the thread that deals with listening to the server. Finally the GUI is started with gtk_main().</p>
+<h2 id="testing-1">Testing</h2>
+<p>All the gui-related functions in client.c were tested heavily using gui.c. gdb and valgrind were used to test client.c as well.</p>
+<h1 id="other-smaller-subsystems">Other smaller subsystems</h1>
+<h2 id="graphics-graphics.c">Graphics (graphics.c)</h2>
+<p>graphics.c draws the cpSpace onto the GUI window. struct graphics_world contains the cpSpace and the drawing box. The functions are called by client.c.</p>
+<h3 id="data-structures-3">Data Structures</h3>
+<pre><code>cpSpace *space;
+bool display;
+float x1, y1, x2, y2;
+GtkWidget *window;
+GtkWidget *drawing_screen;
+cairo_t *cr;
+char *message;
+GArray *user_points;
+COLOR color;
+cairo_surface_t *image;</code></pre>
+<p>struct graphics_world contains information necessary to draw objects to the window. The cpSpace is used to iterate through the bodies and shapes. The floats in the struct are used to display the drawing zone in the correct position, and display is a boolean that represents whether or not the drawing box should be displayed on the screen. The cairo_t, GtkWidgets, and cairo_surface_t are transported from client.c to graphics.c to enable graphics.c to draw on the drawing area created in client.c. message is used to store messages to display to the user, and user_points stores the points that the user has drawn so far (in order to display an object as it is being drawn).</p>
+<p>This data structure is passed from client.c to graphics.c. This allows client.c to let graphics.c know the objects and their positions to accurately draw them onto the screen.</p>
+<h3 id="inputs-and-outputs">Inputs and Outputs</h3>
+<p>graphics.c takes all inputs from client.c. The major input is the graphics_world struct pointer. graphics.c's output comes in the form of drawing shapes to the screen. graphics.c's only public function, graphics_space_iterate(), is called by client.c.</p>
+<h3 id="design-and-functions">Design and Functions</h3>
+<p>graphics.c uses the functions below to meet its objectives.</p>
+<pre><code>static void graphics_set_color_from_body (cairo_t **cr, cpBody *body);
+static void graphics_set_rgb_from_color (cairo_t **cr, COLOR color);
+static void graphics_draw_body (cpBody *body, graphics_world *world);
+static void graphics_get_shape (cpBody *body, cpShape *shape, drawing_coordinates *coords);
+static void graphics_write_message (graphics_world *world);
+static void graphics_draw_zone (graphics_world *world);
+static void graphics_partial_shape (graphics_world *world);
+void graphics_space_iterate (graphics_world *world);</code></pre>
+<p>graphics_space_iterate() is called by client.c This function iterates through all the bodies, static and non-static. The function graphics_draw_body() is called in each iteration to display each body. It does some scaling calculations, and then calls graphics_get_shape() to draw each line segment that makes up the shape.</p>
+<p>graphics_space_iterate() also checks for shapes that are in the process of being drawn. If there are any, then the function calls the graphics_partial_shape() to draw a dotted line in the same color as the shape to be added. graphics_space_iterate() also checks if any messages need to be displayed on the screen, and if so, calls graphics_write_message().</p>
+<p>graphics_set_color_from_body() and graphics_set_color_from_body() are used to change the color of the cairo_t object. graphics_draw_zone() draws the drawing zone as a black dotted line.</p>
+<h2 id="protocols-protocols.c">Protocols (protocols.c)</h2>
+<p>protocols.c defines the language between the server and client for conveying several types of messages. The types of messages are: chat messages, position update messages, level change messages, new body messages, and drawing zone coordinate messages.</p>
+<h3 id="data-structures-4">Data Structures</h3>
+<p>polygon_struct, coord_update, drawing_zone and level_info are all structs that contain body shape information. polygon_struct contains information about the line segments, color, and other attributes needed to add a shape to the cpSpace on both the server and client end. coord_update is a struct that can store the unpacked position and angle information from position updates on the client-end. level_info contains information on the level to be loaded and how the previous level ended (in a win, loss, or by a player's choice to move to another level).</p>
+<h3 id="functions-1">Functions</h3>
+<p>Most functions are public because of the nature of protocols.c's job. It is called by both server and client to code and decode strings.</p>
+<p>polygon_new() allocates memory for a new polygon body, and polygon_from_body() distills the characteristics of a body into the fields stored in the polygon struct. protocol_extract_body() returns a polygon_struct from an string input by populating the fields of the polygon_struct with information from the string. protocol_new_body() creates a string representing a new body. polygon_destroy() is used to free memory, since the polygon_struct is malloc'd in polygon_new().</p>
+<p>protocol_recv_full_message() checks if the entire message has been received by checking for the three ending characters.</p>
+<p>protocol_message_length() returns the length of a message.</p>
+<p>protocol_send_chat() and protocol_decode_chat() code and decode chats written by clients.</p>
+<p>protocol_send_level() and protocol_decode_level() code and decode level information.</p>
+<p>protocol_send_zone() and protocol_decode_zone() code and decode the drawing zone.</p>
+<p>protocol_send_coords() and protocol_extract_coords() are used to code and decode lists of positions and angles to update the positions of each body in the clients' cpSpaces, since the clients' cpSpaces do not carry out time steps.</p>
+<h2 id="networking-networking.c">Networking (networking.c)</h2>
+<p>networking.c defines functions that create sockets, accept connections and send/receive information packets. The major inputs in networking.c fall into two categories: variables to set up the initial conditions, and information necessary to send messages over the socket. server_create_socket() sets up the initial socket, and server_accept_connection() is used to accept connections. The major outputs are new sockets, new connections and received messages. sendall() and recvall() are used to send and receive full messages, and are called by both client.c and networking.c</p>
+<h2 id="common-common.c">Common (common.c)</h2>
+<p>common.c includes data structures and functions called by all other files. As of this stage in development, color-related functions and data structures are the only things that all files need to access. common.c defines an enum for 4 colors we chose to use in Dropzone. The colors are defined RED, YELLOW, BLUE, GREEN starting from 0 to 3 respectively. Functions in common.c are primarily used to convert colors.</p>
+</body>
+</html>

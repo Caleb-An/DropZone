@@ -1,0 +1,10 @@
+The game itself is fun.
+Obviously, they carefully design the game based on Chipmunk library.
+Their document is fine.
+However, this game lacks of multi-player ingredient.
+Moreover, sometimes I cannot connect to the server.
+From the program development perspective, this program is easy to write.
+
+Design: 11
+Style: 11
+Functionality: 12
